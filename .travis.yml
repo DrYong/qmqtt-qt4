@@ -1,0 +1,29 @@
+language: cpp
+
+sudo: required
+
+dist: trusty
+
+compiler: gcc
+
+env:
+  - QT_VERSION=4 UNIT_TESTS=no
+  - QT_VERSION=4 UNIT_TESTS=yes
+  - QT_VERSION=5 UNIT_TESTS=no
+  - QT_VERSION=5 UNIT_TESTS=yes
+
+matrix:
+  allow_failures:
+    - env: QT_VERSION=4 UNIT_TESTS=yes
+    - env: QT_VERSION=5 UNIT_TESTS=no
+    - env: QT_VERSION=5 UNIT_TESTS=yes
+
+install:
+  - '[[ $QT_VERSION = 5 ]] && QT_PACKAGES="qtbase5-dev qttools5-dev qttools5-dev-tools" || QT_PACKAGES="libqt4-dev"'
+  - sudo apt-get update -qq
+  - sudo apt-get install -y $QT_PACKAGES
+
+script:
+  - '[[ "$UNIT_TESTS" = "yes" ]] && qmake || qmake "CONFIG += NO_UNIT_TESTS"'
+  - make
+  - '[[ "$UNIT_TESTS" = "yes" ]] && ./tests/qmqtt_tests || true'

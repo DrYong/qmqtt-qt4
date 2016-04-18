@@ -1,6 +1,8 @@
 QMQTT (Qt4 Backport)
 ====================
 
+[![Build Status](https://travis-ci.org/george-hopkins/qmqtt-qt4.svg?branch=master)](https://travis-ci.org/george-hopkins/qmqtt-qt4)
+
 **Note:** This a MQTT client for Qt4. It is a backport from EMQTT's fantastic [QMQTT](https://github.com/emqtt/qmqtt). The backported library has not been tested and some advanced features have been disabled.
 
 Usage
