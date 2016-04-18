@@ -33,6 +33,7 @@
 #define QMQTT_FRAME_H
 
 #include <QObject>
+#include <QMetaType>
 
 #define PROTOCOL_MAGIC "MQIsdp"
 
