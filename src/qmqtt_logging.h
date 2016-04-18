@@ -1,8 +1,7 @@
 /*
- * qmqtt_router.cpp - qmqtt router
+ * qmqtt_logging.h - qmqtt logging header
  *
  * Copyright (c) 2013  Ery Lee <ery.lee at gmail dot com>
- * Router added by Niklas Wulf <nwulf at geenen-it-systeme dot de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,27 +29,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#include "qmqtt_router.h"
+#ifndef QMQTT_LOGGING_H
+#define QMQTT_LOGGING_H
 
-#include "qmqtt_client.h"
-#include "qmqtt_routesubscription.h"
-#include "qmqtt_logging.h"
+#if QT_VERSION >= 0x050200
+#include <QLoggingCategory>
+#else
+#define Q_DECLARE_LOGGING_CATEGORY(name)
+#define Q_LOGGING_CATEGORY(name, string)
+#endif
 
-namespace QMQTT {
-
-Q_LOGGING_CATEGORY(router, "qmqtt.router")
-
-Router::Router(Client *parent) : QObject(parent), _client(parent)
-{
-}
-
-RouteSubscription *Router::subscribe(const QString &route)
-{
-    RouteSubscription *subscription = new RouteSubscription(this);
-    subscription->setRoute(route);
-    _client->subscribe(subscription->_topic, 0);
-    connect(_client, SIGNAL(received(const Message&)), subscription, SLOT(routeMessage(const Message&)));
-    return subscription;
-}
-
-} // namespace QMQTT
+#endif // QMQTT_LOGGING_H

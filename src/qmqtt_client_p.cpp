@@ -32,7 +32,7 @@
 
 #include "qmqtt_client_p.h"
 #include "qmqtt_message.h"
-#include <QLoggingCategory>
+#include "qmqtt_logging.h"
 #include <QDateTime>
 #include <QUuid>
 

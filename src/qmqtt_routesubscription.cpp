@@ -35,7 +35,7 @@
 #include "qmqtt_message.h"
 #include "qmqtt_router.h"
 #include "qmqtt_routedmessage.h"
-#include <QLoggingCategory>
+#include "qmqtt_logging.h"
 
 namespace QMQTT {
 

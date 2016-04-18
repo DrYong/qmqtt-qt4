@@ -30,7 +30,7 @@
  *
  */
 #include <QDataStream>
-#include <QLoggingCategory>
+#include "qmqtt_logging.h"
 #include "qmqtt_frame.h"
 
 namespace QMQTT {
