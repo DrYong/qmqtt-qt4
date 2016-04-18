@@ -36,14 +36,11 @@ QMQTT::Socket::Socket(QObject* parent)
     : SocketInterface(parent)
     , _socket(new QTcpSocket)
 {
-    connect(_socket.data(), &QTcpSocket::stateChanged, this, &Socket::onStateChanged);
-    connect(_socket.data(), &QTcpSocket::connected,    this, &SocketInterface::connected);
-    connect(_socket.data(), &QTcpSocket::disconnected, this, &SocketInterface::disconnected);
-    connect(_socket.data(), &QTcpSocket::readyRead,    this, &SocketInterface::readyRead);
-    connect(_socket.data(),
-            static_cast<void (QTcpSocket::*)(QAbstractSocket::SocketError)>(&QTcpSocket::error),
-            this,
-            static_cast<void (SocketInterface::*)(QAbstractSocket::SocketError)>(&SocketInterface::error));\
+    connect(_socket.data(), SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(onStateChanged(QAbstractSocket::SocketState)));
+    connect(_socket.data(), SIGNAL(connected()), this, SIGNAL(connected()));
+    connect(_socket.data(), SIGNAL(disconnected()), this, SIGNAL(disconnected()));
+    connect(_socket.data(), SIGNAL(readyRead()), this, SIGNAL(readyRead()));
+    connect(_socket.data(), SIGNAL(error(QAbstractSocket::SocketError)), this, SIGNAL(error(QAbstractSocket::SocketError)));
 }
 
 QMQTT::Socket::~Socket()

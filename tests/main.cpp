@@ -17,7 +17,7 @@ int main(int argc, char **argv)
     testing::InitGoogleTest(&argc, argv);
     installCustomTestPrinter(new CustomPrinter);
     int results = RUN_ALL_TESTS();
-    QTimer::singleShot(0, &app, &QCoreApplication::quit);
+    QTimer::singleShot(0, &app, SLOT(quit()));
     app.exec();
     return results;
 }

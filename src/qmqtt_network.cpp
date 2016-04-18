@@ -71,15 +71,11 @@ void QMQTT::Network::initialize()
     _socket->setParent(this);
     _autoReconnectTimer->setParent(this);
 
-    QObject::connect(_socket, &SocketInterface::connected, this, &Network::connected);
-    QObject::connect(_socket, &SocketInterface::disconnected, this, &Network::onDisconnected);
-    QObject::connect(_socket, &SocketInterface::readyRead, this, &Network::onSocketReadReady);
-    QObject::connect(
-        _autoReconnectTimer, &TimerInterface::timeout,
-        this, static_cast<void (Network::*)()>(&Network::connectToHost));    
-    QObject::connect(_socket,
-        static_cast<void (SocketInterface::*)(QAbstractSocket::SocketError)>(&SocketInterface::error),
-        this, &Network::onSocketError);
+    QObject::connect(_socket, SIGNAL(connected()), this, SIGNAL(connected()));
+    QObject::connect(_socket, SIGNAL(disconnected()), this, SLOT(onDisconnected()));
+    QObject::connect(_socket, SIGNAL(readyRead()), this, SLOT(onSocketReadReady()));
+    QObject::connect(_autoReconnectTimer, SIGNAL(timeout()), this, SLOT(connectToHost()));
+    QObject::connect(_socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(onSocketError(QAbstractSocket::SocketError)));
 }
 
 QMQTT::Network::~Network()

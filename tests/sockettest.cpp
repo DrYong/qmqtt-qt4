@@ -70,7 +70,7 @@ TEST_F(SocketTest, connectToHostMakesTcpConnection_Test)
 TEST_F(SocketTest, disconnectFromHostDisconnectsTcpConnection_Test)
 {
     QSharedPointer<TcpServer> server = createAndConnectToServer();
-    QSignalSpy spy(server->socket(), &QTcpSocket::disconnected);
+    QSignalSpy spy(server->socket(), SIGNAL(disconnected()));
 
     _socket->disconnectFromHost();
     flushEvents();
@@ -80,7 +80,7 @@ TEST_F(SocketTest, disconnectFromHostDisconnectsTcpConnection_Test)
 
 TEST_F(SocketTest, tcpConnectionEmitsConnectedSignal_Test)
 {
-    QSignalSpy spy(_socket.data(), &QMQTT::Socket::connected);
+    QSignalSpy spy(_socket.data(), SIGNAL(connected()));
 
     createAndConnectToServer();
     flushEvents();
@@ -91,7 +91,7 @@ TEST_F(SocketTest, tcpConnectionEmitsConnectedSignal_Test)
 TEST_F(SocketTest, tcpDisconnectionEmitsDisconnectedSignal_Test)
 {
     createAndConnectToServer();
-    QSignalSpy spy(_socket.data(), &QMQTT::Socket::disconnected);
+    QSignalSpy spy(_socket.data(), SIGNAL(disconnected()));
 
     _socket->disconnectFromHost();
     flushEvents();
@@ -102,7 +102,7 @@ TEST_F(SocketTest, tcpDisconnectionEmitsDisconnectedSignal_Test)
 TEST_F(SocketTest, remoteDisconnectionEmitsDisconnectedSignal_Test)
 {
     QSharedPointer<TcpServer> server = createAndConnectToServer();
-    QSignalSpy spy(_socket.data(), &QMQTT::Socket::disconnected);
+    QSignalSpy spy(_socket.data(), SIGNAL(disconnected()));
 
     server->socket()->disconnectFromHost();
     flushEvents();
@@ -120,7 +120,7 @@ TEST_F(SocketTest, connectedSocketShowsConnectedState_Test)
 TEST_F(SocketTest, incomingDataTriggersReadyReadSignal_Test)
 {
     QSharedPointer<TcpServer> server = createAndConnectToServer();
-    QSignalSpy spy(_socket.data(), &QMQTT::Socket::readyRead);
+    QSignalSpy spy(_socket.data(), SIGNAL(readyRead()));
 
     server->socket()->write(BYTE_ARRAY);
     flushEvents();
@@ -149,7 +149,7 @@ TEST_F(SocketTest, noPendingDataOnSocketReturnsAtEndTrue_Test)
 TEST_F(SocketTest, incomingDataIsRetrivable_Test)
 {
     QSharedPointer<TcpServer> server = createAndConnectToServer();
-    QSignalSpy spy(_socket.data(), &QMQTT::Socket::readyRead);
+    QSignalSpy spy(_socket.data(), SIGNAL(readyRead()));
 
     server->socket()->write(BYTE_ARRAY);
     flushEvents();
@@ -159,8 +159,8 @@ TEST_F(SocketTest, incomingDataIsRetrivable_Test)
 }
 
 TEST_F(SocketTest, socketErrorEmitsErrorSignal_Test)
-{    
-    QSignalSpy spy(_socket.data(), static_cast<void (QMQTT::SocketInterface::*)(QAbstractSocket::SocketError)>(&QMQTT::SocketInterface::error));
+{
+    QSignalSpy spy(_socket.data(), SIGNAL(error(QAbstractSocket::SocketError)));
     _socket->connectToHost(HOST, PORT);
     flushEvents();
 

@@ -341,7 +341,7 @@ TEST_F(ClientTest, disconnectSendsDisconnectMessageAndNetworkDisconnect_Test)
 TEST_F(ClientTest, networkConnectEmitsConnectedSignal_Test)
 {
     EXPECT_CALL(*_networkMock, sendFrame(_));
-    QSignalSpy spy(_client.data(), &QMQTT::Client::connected);
+    QSignalSpy spy(_client.data(), SIGNAL(connected()));
 
     emit _networkMock->connected();
 
@@ -350,7 +350,7 @@ TEST_F(ClientTest, networkConnectEmitsConnectedSignal_Test)
 
 TEST_F(ClientTest, networkReceivedSendsConnackDoesNotEmitConnectedSignal_Test)
 {
-    QSignalSpy spy(_client.data(), &QMQTT::Client::connected);
+    QSignalSpy spy(_client.data(), SIGNAL(connected()));
 
     QMQTT::Frame frame(CONNACK_TYPE, QByteArray(2, 0x00));
     emit _networkMock->received(frame);
@@ -369,7 +369,7 @@ TEST_F(ClientTest, publishEmitsPublishedSignal_Test)
 {
     EXPECT_CALL(*_networkMock, sendFrame(_));
     qRegisterMetaType<QMQTT::Message>("QMQTT::Message&");
-    QSignalSpy spy(_client.data(), &QMQTT::Client::published);
+    QSignalSpy spy(_client.data(), SIGNAL(published()));
     QMQTT::Message message(222, "topic", QByteArray("payload"));
 
     _client->publish(message);
@@ -384,7 +384,7 @@ TEST_F(ClientTest, publishEmitsPublishedSignal_Test)
 // todo: two different response types for different QoS levels
 TEST_F(ClientTest, networkReceivedSendsPublishEmitsReceivedSignal_Test)
 {
-    QSignalSpy spy(_client.data(), &QMQTT::Client::received);
+    QSignalSpy spy(_client.data(), SIGNAL(received()));
 
     QMQTT::Frame frame(PUBLISH_TYPE, QByteArray(2, 0x00));
     emit _networkMock->received(frame);
@@ -396,7 +396,7 @@ TEST_F(ClientTest, networkReceivedSendsPublishEmitsReceivedSignal_Test)
 TEST_F(ClientTest, subscribeEmitsSubscribedSignal_Test)
 {
     EXPECT_CALL(*_networkMock, sendFrame(_));
-    QSignalSpy spy(_client.data(), &QMQTT::Client::subscribed);
+    QSignalSpy spy(_client.data(), SIGNAL(subscribed()));
 
     _client->subscribe("topic", QOS2);
 
@@ -410,7 +410,7 @@ TEST_F(ClientTest, subscribeEmitsSubscribedSignal_Test)
 TEST_F(ClientTest, unsubscribeEmitsUnsubscribedSignal_Test)
 {
     EXPECT_CALL(*_networkMock, sendFrame(_));
-    QSignalSpy spy(_client.data(), &QMQTT::Client::unsubscribed);
+    QSignalSpy spy(_client.data(), SIGNAL(unsubscribed()));
 
     _client->unsubscribe("topic");
 
@@ -422,7 +422,7 @@ TEST_F(ClientTest, unsubscribeEmitsUnsubscribedSignal_Test)
 
 TEST_F(ClientTest, networkDisconnectedEmitsDisconnectedSignal_Test)
 {
-    QSignalSpy spy(_client.data(), &QMQTT::Client::disconnected);
+    QSignalSpy spy(_client.data(), SIGNAL(disconnected()));
 
     emit _networkMock->disconnected();
 
@@ -431,7 +431,7 @@ TEST_F(ClientTest, networkDisconnectedEmitsDisconnectedSignal_Test)
 
 TEST_F(ClientTest, clientEmitsErrorWhenNetworkEmitsError_Test)
 {
-    QSignalSpy spy(_client.data(), &QMQTT::Client::error);
+    QSignalSpy spy(_client.data(), SIGNAL(error()));
     emit _networkMock->error(QAbstractSocket::ConnectionRefusedError);
     EXPECT_EQ(1, spy.count());
     EXPECT_EQ(QMQTT::SocketConnectionRefusedError,

@@ -47,9 +47,9 @@ public:
         : QMQTT::Client(host, port, parent)
         , _number(0)
     {
-        connect(this, &Publisher::connected, this, &Publisher::onConnected);
-        connect(&_timer, &QTimer::timeout, this, &Publisher::onTimeout);
-        connect(this, &Publisher::disconnected, this, &Publisher::onDisconnected);
+        connect(this, SIGNAL(connected()), this, SLOT(onConnected()));
+        connect(&_timer, SIGNAL(timeout()), this, SLOT(onTimeout()));
+        connect(this, SIGNAL(disconnected()), this, SLOT(onDisconnected()));
     }
     virtual ~Publisher() {}
 
@@ -78,7 +78,7 @@ public slots:
 
     void onDisconnected()
     {
-        QTimer::singleShot(0, qApp, &QCoreApplication::quit);
+        QTimer::singleShot(0, qApp, SLOT(quit()));
     }
 };
 
@@ -92,9 +92,9 @@ public:
         : QMQTT::Client(host, port, parent)
         , _qout(stdout)
     {
-        connect(this, &Subscriber::connected, this, &Subscriber::onConnected);
-        connect(this, &Subscriber::subscribed, this, &Subscriber::onSubscribed);
-        connect(this, &Subscriber::received, this, &Subscriber::onReceived);
+        connect(this, SIGNAL(connected()), this, SLOT(onConnected()));
+        connect(this, SIGNAL(subscribed(const QString&)), this, SLOT(onSubscribed(const QString&)));
+        connect(this, SIGNAL(received(const QMQTT::Message&)), this, SLOT(onReceived(const QMQTT::Message&)));
     }
     virtual ~Subscriber() {}
 

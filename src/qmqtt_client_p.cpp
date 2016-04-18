@@ -77,15 +77,11 @@ void QMQTT::ClientPrivate::init(const QHostAddress& host, const quint16 port, Ne
 
     initializeErrorHash();
 
-    QObject::connect(&_timer, &QTimer::timeout, q, &Client::onTimerPingReq);
-    QObject::connect(_network.data(), &Network::connected,
-                     q, &Client::onNetworkConnected);
-    QObject::connect(_network.data(), &Network::disconnected,
-                     q, &Client::onNetworkDisconnected);
-    QObject::connect(_network.data(), &Network::received,
-                     q, &Client::onNetworkReceived);
-    QObject::connect(_network.data(), &Network::error,
-                     q, &Client::onNetworkError);
+    QObject::connect(&_timer,SIGNAL(timeout()), q, SLOT(onTimerPingReq()));
+    QObject::connect(_network.data(), SIGNAL(connected()), q, SLOT(onNetworkConnected()));
+    QObject::connect(_network.data(), SIGNAL(disconnected()), q, SLOT(onNetworkDisconnected()));
+    QObject::connect(_network.data(), SIGNAL(received(const QMQTT::Frame&)), q, SLOT(onNetworkReceived(const QMQTT::Frame&)));
+    QObject::connect(_network.data(), SIGNAL(error(QAbstractSocket::SocketError)), q, SLOT(onNetworkError(QAbstractSocket::SocketError)));
 }
 
 void QMQTT::ClientPrivate::initializeErrorHash()

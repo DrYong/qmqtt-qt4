@@ -137,14 +137,14 @@ TEST_F(NetworkTest, networkSendFrameWillSendAFrameIfConnected_Test)
 
 TEST_F(NetworkTest, networkEmitsConnectedSignalWhenSocketEmitsConnectedSignal_Test)
 {
-    QSignalSpy spy(_network.data(), &QMQTT::Network::connected);
+    QSignalSpy spy(_network.data(), SIGNAL(connected()));
     emit _socketMock->connected();
     EXPECT_EQ(1, spy.count());
 }
 
 TEST_F(NetworkTest, networkEmitsDisconnectedSignalWhenSocketEmitsDisconnectedSignal_Test)
 {
-    QSignalSpy spy(_network.data(), &QMQTT::Network::disconnected);
+    QSignalSpy spy(_network.data(), SIGNAL(disconnected()));
     emit _socketMock->disconnected();
     EXPECT_EQ(1, spy.count());
 }
@@ -169,7 +169,7 @@ TEST_F(NetworkTest, networkEmitsReceivedSignalOnceAFrameIsReceived_Test)
     EXPECT_CALL(*_socketMock, readData(_, _))
         .WillRepeatedly(Invoke(this, &NetworkTest::readDataFromFixtureByteArray));
 
-    QSignalSpy spy(_network.data(), &QMQTT::Network::received);
+    QSignalSpy spy(_network.data(), SIGNAL(received()));
     emit _socketMock->readyRead();
     EXPECT_EQ(1, spy.count());
     EXPECT_EQ(payload, spy.at(0).at(0).value<QMQTT::Frame>().data());
@@ -225,7 +225,7 @@ TEST_F(NetworkTest, networkWillEmitErrorOnSocketError_Test)
         Invoke(_timerMock, &QMQTT::TimerInterface::timeout),
         Return()));
 
-    QSignalSpy spy(_network.data(), &QMQTT::NetworkInterface::error);
+    QSignalSpy spy(_network.data(), SIGNAL(error()));
     _socketMock->error(QAbstractSocket::ConnectionRefusedError);
     EXPECT_EQ(1, spy.count());
     EXPECT_EQ(QAbstractSocket::ConnectionRefusedError,

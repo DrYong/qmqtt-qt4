@@ -34,7 +34,7 @@
 QMQTT::Timer::Timer(QObject* parent)
     : TimerInterface(parent)
 {
-    connect(&_timer, &QTimer::timeout, this, &TimerInterface::timeout);
+    connect(&_timer, SIGNAL(timeout()), this, SIGNAL(timeout()));
 }
 
 QMQTT::Timer::~Timer()
