@@ -17,6 +17,11 @@ SOURCES += \
     frametest.cpp \
     sockettest.cpp
 
+greaterThan(QT_MAJOR_VERSION, 4): SOURCES += \
+    qmqtt_routesubscriptiontests.cpp \
+    qmqtt_routedmessagetests.cpp \
+    qmqtt_routertests.cpp \
+
 HEADERS += \
     tcpserver.h \
     customprinter.h \

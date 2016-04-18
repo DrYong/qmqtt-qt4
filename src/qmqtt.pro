@@ -12,12 +12,14 @@ SOURCES += qmqtt_client.cpp \
     qmqtt_frame.cpp \
     qmqtt_client_p.cpp \
     qmqtt_message.cpp \
-    qmqtt_router.cpp \
-    qmqtt_routesubscription.cpp \
-    qmqtt_routedmessage.cpp \
     qmqtt_message_p.cpp \
     qmqtt_socket.cpp \
     qmqtt_timer.cpp
+
+greaterThan(QT_MAJOR_VERSION, 4): SOURCES += \
+    qmqtt_routesubscription.cpp \
+    qmqtt_routedmessage.cpp \
+    qmqtt_router.cpp
 
 HEADERS += qmqtt_client.h\
     qmqtt_global.h \
@@ -25,16 +27,18 @@ HEADERS += qmqtt_client.h\
     qmqtt_frame.h \
     qmqtt_client_p.h \
     qmqtt_message.h \
-    qmqtt_router.h \
     qmqtt.h \
-    qmqtt_routesubscription.h \
-    qmqtt_routedmessage.h \
     qmqtt_networkinterface.h \
     qmqtt_message_p.h \
     qmqtt_socketinterface.h \
     qmqtt_socket.h \
     qmqtt_timer.h \
     qmqtt_timerinterface.h
+
+greaterThan(QT_MAJOR_VERSION, 4): HEADERS += \
+    qmqtt_routesubscription.h \
+    qmqtt_routedmessage.h \
+    qmqtt_router.h
 
 isEmpty(PREFIX) {
     contains(MEEGO_EDITION,harmattan) {
