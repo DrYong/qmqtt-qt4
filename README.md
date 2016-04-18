@@ -1,15 +1,14 @@
-QMQTT
-=====
+QMQTT (Qt4 Backport)
+====================
 
-mqtt client for Qt
+**Note:** This a MQTT client for Qt4. It is a backport from EMQTT's fantastic [QMQTT](https://github.com/emqtt/qmqtt). The backported library has not been tested and some advanced features have been disabled.
 
-**Please compile the library with >=Qt 5.3 version.**
 Usage
 =====
 
 	#include "qmqtt.h"
 
-        QMQTT::Client *client = new QMQTT::Client(QHostAddress::LocalHost, 1883);
+    QMQTT::Client *client = new QMQTT::Client(QHostAddress::LocalHost, 1883);
 
 	client->setClientId("clientId");
 
@@ -71,14 +70,14 @@ The MIT License (MIT)
 Contributors
 =============
 
-[@Kampfgnom](https://github.com/Kampfgnom)
+* [Kampfgnom](https://github.com/Kampfgnom)
+* [rafaeldelucena](https://github.com/rafaeldelucena)
+* [George Hopkins](https://github.com/george-hopkins)
 
-[@rafaeldelucena](https://github.com/rafaeldelucena)
 
+Authors
+=======
 
-Author
-======
-
-Feng Lee <feng@emqtt.io>   
-William Guynes <wguynes@gmail.com>
-wuming123057 <huacai123057@163.com>
+ * Feng Lee <feng@emqtt.io>
+ * William Guynes <wguynes@gmail.com>
+ * wuming123057 <huacai123057@163.com>
