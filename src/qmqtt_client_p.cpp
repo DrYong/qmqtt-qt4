@@ -105,10 +105,12 @@ void QMQTT::ClientPrivate::initializeErrorHash()
     _socketErrorHash.insert(QAbstractSocket::ProxyConnectionTimeoutError, SocketProxyConnectionTimeoutError);
     _socketErrorHash.insert(QAbstractSocket::ProxyNotFoundError, SocketProxyNotFoundError);
     _socketErrorHash.insert(QAbstractSocket::ProxyProtocolError, SocketProxyProtocolError);
+#if QT_VERSION >= 0x050000
     _socketErrorHash.insert(QAbstractSocket::OperationError, SocketOperationError);
     _socketErrorHash.insert(QAbstractSocket::SslInternalError, SocketSslInternalError);
     _socketErrorHash.insert(QAbstractSocket::SslInvalidUserDataError, SocketSslInvalidUserDataError);
     _socketErrorHash.insert(QAbstractSocket::TemporaryError, SocketTemporaryError);
+#endif
 }
 
 void QMQTT::ClientPrivate::connectToHost()
