@@ -2,3 +2,9 @@
 debug
 release
 *.autosave
+*.moc
+*.o
+*.so
+*.so.*
+Makefile*
+moc_*.cpp
