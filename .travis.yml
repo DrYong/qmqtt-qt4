@@ -24,6 +24,5 @@ install:
   - sudo apt-get install -y qtchooser $QT_PACKAGES
 
 script:
-  - '[[ "$UNIT_TESTS" = "yes" ]] && QT_SELECT=$QT_VERSION qmake || QT_SELECT=$QT_VERSION qmake "CONFIG += NO_UNIT_TESTS"'
+  - '[[ "$UNIT_TESTS" = "yes" ]] && QT_SELECT=$QT_VERSION qmake "QT_BUILD_PARTS += tests" || QT_SELECT=$QT_VERSION qmake "CONFIG += NO_UNIT_TESTS"'
   - make
-  - '[[ "$UNIT_TESTS" = "yes" ]] && ./tests/qmqtt_tests || true'
