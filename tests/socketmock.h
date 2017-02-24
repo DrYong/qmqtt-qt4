@@ -29,6 +29,10 @@ public:
     MOCK_METHOD0(disconnectFromHost, void());
     MOCK_CONST_METHOD0(state, QAbstractSocket::SocketState());
     MOCK_CONST_METHOD0(error, QAbstractSocket::SocketError());
+#if QT_VERSION < 0x050000
+    using QMQTT::SocketInterface::connected;
+    using QMQTT::SocketInterface::disconnected;
+#endif
 };
 
 #endif // SOCKET_MOCK_H

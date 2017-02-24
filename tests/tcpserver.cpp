@@ -5,7 +5,7 @@
 TcpServer::TcpServer(const QHostAddress host, const quint16 port)
     : _socket(NULL)
 {
-    connect(this, SIGNAL(newConnection()), this, SIGNAL(on_newConnection()));
+    connect(this, SIGNAL(newConnection()), this, SLOT(on_newConnection()));
     listen(host, port);
 }
 
@@ -17,7 +17,7 @@ void TcpServer::on_newConnection()
 {
     if(NULL != _socket)
     {
-        disconnect(_socket, SIGNAL(readyRead()), this, SIGNAL(on_readyRead()));
+        disconnect(_socket, SIGNAL(readyRead()), this, SLOT(on_readyRead()));
         _socket->disconnectFromHost();
         _socket->deleteLater();
         _socket = NULL;
@@ -26,7 +26,7 @@ void TcpServer::on_newConnection()
     _socket = nextPendingConnection();
     if(NULL != _socket)
     {
-        connect(_socket, SIGNAL(readyRead()), this, SIGNAL(on_readyRead()));
+        connect(_socket, SIGNAL(readyRead()), this, SLOT(on_readyRead()));
     }
 }
 

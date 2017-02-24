@@ -16,8 +16,13 @@ public:
     MOCK_CONST_METHOD0(state, QAbstractSocket::SocketState());
     MOCK_METHOD2(connectToHost, void(const QHostAddress&, const quint16));
     MOCK_METHOD2(connectToHost, void(const QString&, const quint16));
-    MOCK_METHOD0(disconnectFromHost, void());    
+    MOCK_METHOD0(disconnectFromHost, void());
+#if QT_VERSION < 0x050000
+    using QMQTT::NetworkInterface::connected;
+    using QMQTT::NetworkInterface::disconnected;
+    using QMQTT::NetworkInterface::received;
+    using QMQTT::NetworkInterface::error;
+#endif
 };
 
 #endif // NETWORK_MOCK_H
-

@@ -13,6 +13,9 @@ public:
     MOCK_METHOD1(setInterval, void(int));
     MOCK_METHOD0(start, void());
     MOCK_METHOD0(stop, void());
+#if QT_VERSION < 0x050000
+    using QMQTT::TimerInterface::timeout;
+#endif
 };
 
 #endif // TIMER_MOCK_H

@@ -17,6 +17,10 @@ public:
     MOCK_METHOD2(write, qint64(const char*, qint64));
     MOCK_METHOD1(write, qint64(const char*));
     MOCK_METHOD1(write, qint64(const QByteArray&));
+
+#if QT_VERSION < 0x050000
+    using QIODevice::readyRead;
+#endif
 };
 
 #endif // IODEVICEMOCK_H

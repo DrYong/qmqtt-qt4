@@ -2,6 +2,7 @@
 #include <qmqtt_client.h>
 #include <qmqtt_message.h>
 #include <qmqtt_frame.h>
+#include <qmqtt_string.h>
 #include <QSharedPointer>
 #include <QSignalSpy>
 #include <QCoreApplication>
@@ -51,6 +52,13 @@ public:
     {
         return header & 0xF0;
     }
+
+protected:
+    void resetClient(QMQTT::Client* c)
+    {
+        QSharedPointer<QMQTT::Client> newClient(c);
+        _client.swap(newClient);
+    }
 };
 
 TEST_F(ClientTest, constructorWithNoParameters_Test)
@@ -62,7 +70,7 @@ TEST_F(ClientTest, constructorWithNoParameters_Test)
 
 TEST_F(ClientTest, constructorWithHost_Test)
 {
-    _client.reset(new QMQTT::Client(HOST_ADDRESS));
+    resetClient(new QMQTT::Client(HOST_ADDRESS));
 
     EXPECT_EQ(HOST_ADDRESS, _client->host());
     EXPECT_EQ(1883, _client->port());
@@ -71,7 +79,7 @@ TEST_F(ClientTest, constructorWithHost_Test)
 
 TEST_F(ClientTest, constructorWithHostAndPort_Test)
 {
-    _client.reset(new QMQTT::Client(HOST_ADDRESS, PORT));
+    resetClient(new QMQTT::Client(HOST_ADDRESS, PORT));
 
     EXPECT_EQ(HOST_ADDRESS, _client->host());
     EXPECT_EQ(PORT, _client->port());
@@ -81,17 +89,17 @@ TEST_F(ClientTest, constructorWithHostAndPort_Test)
 TEST_F(ClientTest, constructorWithHostPortAndParent_Test)
 {
     QObject parent;
-    _client.reset(new QMQTT::Client(HOST_ADDRESS, PORT, &parent));
+    resetClient(new QMQTT::Client(HOST_ADDRESS, PORT, &parent));
 
     EXPECT_EQ(HOST_ADDRESS, _client->host());
     EXPECT_EQ(PORT, _client->port());
     EXPECT_EQ(&parent, _client->parent());
-    _client.reset();
+    _client.clear();
 }
 
 TEST_F(ClientTest, constructorWithHostPortAndSsl_Test)
 {
-    _client.reset(new QMQTT::Client(HOST_NAME, PORT, true, false));
+    resetClient(new QMQTT::Client(HOST_NAME, PORT, true, false));
 
     EXPECT_EQ(HOST_NAME, _client->hostName());
     EXPECT_EQ(PORT, _client->port());
@@ -101,12 +109,12 @@ TEST_F(ClientTest, constructorWithHostPortAndSsl_Test)
 TEST_F(ClientTest, constructorWithHostPortSslAndParent_Test)
 {
     QObject parent;
-    _client.reset(new QMQTT::Client(HOST_NAME, PORT, true, false, &parent));
+    resetClient(new QMQTT::Client(HOST_NAME, PORT, true, false, &parent));
 
     EXPECT_EQ(HOST_NAME, _client->hostName());
     EXPECT_EQ(PORT, _client->port());
     EXPECT_EQ(&parent, _client->parent());
-    _client.reset();
+    _client.clear();
 }
 
 TEST_F(ClientTest, hostReturnsHostValue_Test)
@@ -403,7 +411,7 @@ TEST_F(ClientTest, publishEmitsPublishedSignal_Test)
 {
     EXPECT_CALL(*_networkMock, sendFrame(_));
     qRegisterMetaType<QMQTT::Message>("QMQTT::Message&");
-    QSignalSpy spy(_client.data(), SIGNAL(published()));
+    QSignalSpy spy(_client.data(), SIGNAL(published(const QMQTT::Message&)));
     QMQTT::Message message(222, "topic", QByteArray("payload"));
 
     _client->publish(message);
@@ -418,7 +426,7 @@ TEST_F(ClientTest, publishEmitsPublishedSignal_Test)
 // todo: two different response types for different QoS levels
 TEST_F(ClientTest, networkReceivedSendsPublishEmitsReceivedSignal_Test)
 {
-    QSignalSpy spy(_client.data(), SIGNAL(received()));
+    QSignalSpy spy(_client.data(), SIGNAL(received(const QMQTT::Message&)));
 
     QMQTT::Frame frame(PUBLISH_TYPE, QByteArray(2, 0x00));
     emit _networkMock->received(frame);
@@ -430,7 +438,7 @@ TEST_F(ClientTest, networkReceivedSendsPublishEmitsReceivedSignal_Test)
 TEST_F(ClientTest, subscribeEmitsSubscribedSignal_Test)
 {
     EXPECT_CALL(*_networkMock, sendFrame(_));
-    QSignalSpy spy(_client.data(), SIGNAL(subscribed()));
+    QSignalSpy spy(_client.data(), SIGNAL(subscribed(const QString&)));
 
     _client->subscribe("topic", QOS2);
 
@@ -444,7 +452,7 @@ TEST_F(ClientTest, subscribeEmitsSubscribedSignal_Test)
 TEST_F(ClientTest, unsubscribeEmitsUnsubscribedSignal_Test)
 {
     EXPECT_CALL(*_networkMock, sendFrame(_));
-    QSignalSpy spy(_client.data(), SIGNAL(unsubscribed()));
+    QSignalSpy spy(_client.data(), SIGNAL(unsubscribed(const QString&)));
 
     _client->unsubscribe("topic");
 
@@ -465,7 +473,7 @@ TEST_F(ClientTest, networkDisconnectedEmitsDisconnectedSignal_Test)
 
 TEST_F(ClientTest, clientEmitsErrorWhenNetworkEmitsError_Test)
 {
-    QSignalSpy spy(_client.data(), SIGNAL(error()));
+    QSignalSpy spy(_client.data(), SIGNAL(error(const QMQTT::ClientError)));
     emit _networkMock->error(QAbstractSocket::ConnectionRefusedError);
     EXPECT_EQ(1, spy.count());
     EXPECT_EQ(QMQTT::SocketConnectionRefusedError,
