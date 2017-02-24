@@ -36,7 +36,7 @@ LIBS += -L../gtest -L../gtest/debug -L../gtest/release -lgtest
 unix:!NO_UNIT_TESTS:!NO_RUN_UNIT_TESTS: {
     unit_tests.target = all
     greaterThan(QT_MAJOR_VERSION, 4) {
-        unit_tests.commands = \
+        macx: unit_tests.commands = \
             install_name_tool -change libgtest.1.dylib $${OUT_PWD}/../gtest/libgtest.1.dylib $${OUT_PWD}/qmqtt_tests.app/Contents/MacOS/qmqtt_tests; \
             $${OUT_PWD}/qmqtt_tests.app/Contents/MacOS/qmqtt_tests
         else: unit_tests.commands = \
