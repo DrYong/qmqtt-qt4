@@ -7,16 +7,16 @@ HEADERS += \
     $$PWD/qmqtt_frame.h \
     $$PWD/qmqtt_global.h \
     $$PWD/qmqtt_message.h \
-    $$PWD/qmqtt_network.h \
-    $$PWD/qmqtt_ssl_network.h \
+    $$PWD/qmqtt_network_p.h \
+    $$PWD/qmqtt_ssl_network_p.h \
     $$PWD/qmqtt.h \
     $$PWD/qmqtt_networkinterface.h \
     $$PWD/qmqtt_message_p.h \
-    $$PWD/qmqtt_socket.h \
-    $$PWD/qmqtt_ssl_socket.h \
+    $$PWD/qmqtt_socket_p.h \
+    $$PWD/qmqtt_ssl_socket_p.h \
     $$PWD/qmqtt_socketinterface.h \
     $$PWD/qmqtt_timerinterface.h \
-    $$PWD/qmqtt_timer.h
+    $$PWD/qmqtt_timer_p.h
 
 SOURCES += \
     $$PWD/qmqtt_client_p.cpp \

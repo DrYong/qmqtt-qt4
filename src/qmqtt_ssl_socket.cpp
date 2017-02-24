@@ -30,9 +30,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#include "qmqtt_ssl_socket.h"
-#include "qmqtt_string.h"
+#include "qmqtt_ssl_socket_p.h"
+#include "qmqtt_string_p.h"
 #include <QSslSocket>
+#include <QSslConfiguration>
+#include <QSslCertificate>
+#include <QSslKey>
 
 #ifndef QT_NO_SSL
 
@@ -71,9 +74,18 @@ void QMQTT::SslSocket::connectToHost(const QHostAddress& address, quint16 port)
     emit SocketInterface::error(QAbstractSocket::ConnectionRefusedError);
 }
 
+//put the crt and key file into application running directory
+//todo:set file path on instance if necessary
 void QMQTT::SslSocket::connectToHost(const QString& hostName, quint16 port)
 {
+    QSslConfiguration sslConf = _socket.data()->sslConfiguration();
+    sslConf.setProtocol(QSsl::TlsV1_2);
+    sslConf.setLocalCertificate(QSslCertificate::fromPath(QStringLiteral("./cert.crt")).first());   //LocalCertificate
+    _socket.data()->setSslConfiguration(sslConf);
+    _socket.data()->setPrivateKey(QStringLiteral("./cert.key"));                    //LocalPrivateKey
     _socket->connectToHostEncrypted(hostName, port);
+    _socket.data()->setPeerVerifyMode(QSslSocket::VerifyNone);                      //important
+
     if (!_socket->waitForEncrypted())
     {
         qCritical() << QStringLiteral("qmqtt SSL: ") << _socket->errorString();

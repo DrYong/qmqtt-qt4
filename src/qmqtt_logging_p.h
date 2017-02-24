@@ -1,5 +1,5 @@
 /*
- * qmqtt_message.h - qmqtt message private header
+ * qmqtt_logging_p.h - qmqtt logging header
  *
  * Copyright (c) 2013  Ery Lee <ery.lee at gmail dot com>
  * All rights reserved.
@@ -29,48 +29,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#ifndef QMQTT_MESSAGE_P_H
-#define QMQTT_MESSAGE_P_H
+#ifndef QMQTT_LOGGING_H
+#define QMQTT_LOGGING_H
 
-#include <QString>
-#include <QByteArray>
+#if QT_VERSION >= 0x050200
+#include <QLoggingCategory>
+#else
+#define Q_DECLARE_LOGGING_CATEGORY(name)
+#define Q_LOGGING_CATEGORY(name, string)
+#endif
 
-namespace QMQTT {
-
-class MessagePrivate
-{
-public:
-    explicit MessagePrivate();
-    virtual ~MessagePrivate();
-
-    void init(const quint16 id, const QString &topic, const QByteArray &payload,
-              const quint8 qos, const bool retain, const bool dup);
-
-    MessagePrivate(const MessagePrivate& other);
-    MessagePrivate& operator=(const MessagePrivate& other);
-    bool operator==(const MessagePrivate& other) const;
-
-    quint16 id() const;
-    void setId(const quint16 id);
-    quint8 qos() const;
-    void setQos(const quint8 qos);
-    bool retain() const;
-    void setRetain(const bool retain);
-    bool dup() const;
-    void setDup(const bool dup);
-    QString topic() const;
-    void setTopic(const QString& topic);
-    QByteArray payload() const;
-    void setPayload(const QByteArray& payload);
-
-    quint16 _id;
-    QString _topic;
-    QByteArray _payload;
-    quint8 _qos;
-    bool _retain;
-    bool _dup;
-};
-
-} // namespace QMQTT
-
-#endif // QMQTT_MESSAGE_P_H
+#endif // QMQTT_LOGGING_H

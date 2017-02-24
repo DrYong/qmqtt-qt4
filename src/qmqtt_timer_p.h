@@ -1,5 +1,5 @@
 /*
- * qmqtt_string.h - qmqtt string header
+ * qmqtt_timer_p.h - qmqtt timer private header
  *
  * Copyright (c) 2013  Ery Lee <ery.lee at gmail dot com>
  * All rights reserved.
@@ -29,11 +29,32 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#ifndef QMQTT_STRING_H
-#define QMQTT_STRING_H
+#ifndef QMQTT_TIMER_P_H
+#define QMQTT_TIMER_P_H
 
-#if QT_VERSION < 0x050000
-#define QStringLiteral(str) QString::fromUtf8("" str "", sizeof(str) - 1)
-#endif
+#include "qmqtt_timerinterface.h"
+#include <QTimer>
 
-#endif // QMQTT_STRING_H
+namespace QMQTT {
+
+class Timer : public TimerInterface
+{
+    Q_OBJECT
+public:
+    explicit Timer(QObject *parent = 0);
+    virtual ~Timer();
+
+    bool isSingleShot() const;
+    void setSingleShot(bool singleShot);
+    int interval() const;
+    void setInterval(int msec);
+    void start();
+    void stop();
+
+protected:
+    QTimer _timer;
+};
+
+}
+
+#endif // QMQTT_TIMER_P_H

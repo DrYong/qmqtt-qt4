@@ -1,5 +1,5 @@
 /*
- * qmqtt_socket.h - qmqtt socket header
+ * qmqtt_network_p.h - qmqtt network private header
  *
  * Copyright (c) 2013  Ery Lee <ery.lee at gmail dot com>
  * All rights reserved.
@@ -29,36 +29,73 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#ifndef QMQTT_SOCKET_H
-#define QMQTT_SOCKET_H
+#ifndef QMQTT_NETWORK_P_H
+#define QMQTT_NETWORK_P_H
 
-#include "qmqtt_socketinterface.h"
+#include "qmqtt_networkinterface.h"
+#include "qmqtt_frame.h"
+#include <QByteArray>
 #include <QObject>
-#include <QScopedPointer>
+#include <QTcpSocket>
+#include <QPointer>
+#include <QByteArray>
+#include <QHostAddress>
 
-class QTcpSocket;
+namespace QMQTT {
 
-namespace QMQTT
-{
+class SocketInterface;
+class TimerInterface;
 
-class Socket : public SocketInterface
+class Network : public NetworkInterface
 {
     Q_OBJECT
-public:
-    explicit Socket(QObject* parent = NULL);
-    virtual	~Socket();
 
-    virtual QIODevice *ioDevice();
-    void connectToHost(const QHostAddress& address, quint16 port);
-    void connectToHost(const QString& hostName, quint16 port);
-    void disconnectFromHost();
+public:
+    Network(QObject* parent = NULL);
+    Network(SocketInterface* socketInterface, TimerInterface* timerInterface,
+            QObject* parent = NULL);
+    ~Network();
+
+    void sendFrame(Frame& frame);
+    bool isConnectedToHost() const;
+    bool autoReconnect() const;
+    void setAutoReconnect(const bool autoReconnect);
     QAbstractSocket::SocketState state() const;
-    QAbstractSocket::SocketError error() const;
+    int autoReconnectInterval() const;
+    void setAutoReconnectInterval(const int autoReconnectInterval);
+
+public slots:
+    void connectToHost(const QHostAddress& host, const quint16 port);
+    void connectToHost(const QString& hostName, const quint16 port);
+    void disconnectFromHost();
+
+protected slots:
+    void onSocketError(QAbstractSocket::SocketError socketError);
 
 protected:
-    QScopedPointer<QTcpSocket> _socket;
+    void initialize();
+    int readRemainingLength();
+
+    quint16 _port;
+    QHostAddress _host;
+    QString _hostName;
+    QByteArray _buffer;
+    bool _autoReconnect;
+    int _autoReconnectInterval;
+    int _bytesRemaining;
+    quint8 _header;
+    SocketInterface* _socket;
+    TimerInterface* _autoReconnectTimer;
+
+protected slots:
+    void onSocketReadReady();
+    void onDisconnected();
+    void connectToHost();
+
+private:
+    Q_DISABLE_COPY(Network)
 };
 
-}
+} // namespace QMQTT
 
-#endif // QMQTT_SOCKET_H
+#endif // QMQTT_NETWORK_P_H

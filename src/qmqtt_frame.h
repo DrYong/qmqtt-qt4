@@ -32,6 +32,8 @@
 #ifndef QMQTT_FRAME_H
 #define QMQTT_FRAME_H
 
+#include <qmqtt_global.h>
+
 #include <QObject>
 #include <QMetaType>
 
@@ -85,7 +87,7 @@
 
 namespace QMQTT {
 
-class Frame
+class Q_MQTT_EXPORT Frame
 {
 public:
     explicit Frame();
