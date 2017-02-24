@@ -66,7 +66,7 @@ Signals
 License
 =======
 
-The MIT License (MIT)
+New BSD License
 
 
 Contributors

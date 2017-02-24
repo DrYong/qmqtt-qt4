@@ -120,7 +120,7 @@ TEST_F(NetworkTest, networkSetAutoReconnectTrueSetsAutoReconnectTrue_Test)
 TEST_F(NetworkTest, networkSendFrameWillNotSendAFrameIfNotConnected_Test)
 {
     EXPECT_CALL(*_socketMock, state()).WillOnce(Return(QAbstractSocket::UnconnectedState));
-    EXPECT_CALL(*_socketMock, writeData(_, _)).Times(0);
+    EXPECT_CALL(*_socketMock->mockIoDevice, writeData(_, _)).Times(0);
 
     QMQTT::Frame frame;
     _network->sendFrame(frame);
@@ -129,7 +129,7 @@ TEST_F(NetworkTest, networkSendFrameWillNotSendAFrameIfNotConnected_Test)
 TEST_F(NetworkTest, networkSendFrameWillSendAFrameIfConnected_Test)
 {
     EXPECT_CALL(*_socketMock, state()).WillOnce(Return(QAbstractSocket::ConnectedState));
-    EXPECT_CALL(*_socketMock, writeData(_, _));
+    EXPECT_CALL(*_socketMock->mockIoDevice, writeData(_, _));
 
     QMQTT::Frame frame;
     _network->sendFrame(frame);
@@ -164,13 +164,13 @@ TEST_F(NetworkTest, networkEmitsReceivedSignalOnceAFrameIsReceived_Test)
     buffer.close();
     EXPECT_EQ(132, _byteArray.size());
 
-    EXPECT_CALL(*_socketMock, atEnd())
+    EXPECT_CALL(*_socketMock->mockIoDevice, atEnd())
         .WillRepeatedly(Invoke(this, &NetworkTest::fixtureByteArrayIsEmpty));
-    EXPECT_CALL(*_socketMock, readData(_, _))
+    EXPECT_CALL(*_socketMock->mockIoDevice, readData(_, _))
         .WillRepeatedly(Invoke(this, &NetworkTest::readDataFromFixtureByteArray));
 
     QSignalSpy spy(_network.data(), SIGNAL(received()));
-    emit _socketMock->readyRead();
+    emit _socketMock->ioDevice()->readyRead();
     EXPECT_EQ(1, spy.count());
     EXPECT_EQ(payload, spy.at(0).at(0).value<QMQTT::Frame>().data());
 }
@@ -182,7 +182,7 @@ TEST_F(NetworkTest, networkWillAttemptToReconnectOnDisconnectionIfAutoReconnectI
         Return()));
     _network->setAutoReconnect(true);
 
-    EXPECT_CALL(*_socketMock, connectToHost(_, _));
+    EXPECT_CALL(*_socketMock, connectToHost(Matcher<const QHostAddress&>(_), _));
     emit _socketMock->disconnected();
 }
 
@@ -193,7 +193,7 @@ TEST_F(NetworkTest, networkWillNotAttemptToReconnectOnDisconnectionIfAutoReconne
         Return()));
     _network->setAutoReconnect(false);
 
-    EXPECT_CALL(*_socketMock, connectToHost(_, _)).Times(0);
+    EXPECT_CALL(*_socketMock, connectToHost(Matcher<const QHostAddress&>(_), _)).Times(0);
     emit _socketMock->disconnected();
 }
 
@@ -204,7 +204,7 @@ TEST_F(NetworkTest, networkWillAttemptToReconnectOnConnectionErrorIfAutoReconnec
         Return()));
     _network->setAutoReconnect(true);
 
-    EXPECT_CALL(*_socketMock, connectToHost(_, _));
+    EXPECT_CALL(*_socketMock, connectToHost(Matcher<const QHostAddress&>(_), _));
     _socketMock->error(QAbstractSocket::ConnectionRefusedError);
 }
 
@@ -215,7 +215,7 @@ TEST_F(NetworkTest, networkWillNotAttemptToReconnectOnConnectionErrorIfAutoRecon
         Return()));
     _network->setAutoReconnect(false);
 
-    EXPECT_CALL(*_socketMock, connectToHost(_, _)).Times(0);
+    EXPECT_CALL(*_socketMock, connectToHost(Matcher<const QHostAddress&>(_), _)).Times(0);
     _socketMock->error(QAbstractSocket::ConnectionRefusedError);
 }
 

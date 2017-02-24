@@ -36,6 +36,7 @@
 #include <QMetaType>
 
 #define PROTOCOL_MAGIC "MQIsdp"
+#define RANDOM_CLIENT_PREFIX "QMQTT-"
 
 #define CONNECT 0x10
 #define CONNACK 0x20
@@ -111,9 +112,9 @@ public:
 
     //TODO: FIXME LATER
     void write(QDataStream &stream);
+    bool encodeLength(QByteArray &lenbuf, int length);
 
 private:
-    void encodeLength(QByteArray & lenbuf, int length);
     quint8 _header;
     QByteArray _data;
 };

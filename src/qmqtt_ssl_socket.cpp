@@ -1,7 +1,8 @@
 /*
- * qmqtt_socket.cpp - qmqtt socket
+ * qmqtt_ssl_socket.cpp - qmqtt SSL socket
  *
  * Copyright (c) 2013  Ery Lee <ery.lee at gmail dot com>
+ * Copyright (c) 2016  Matthias Dieter Wallnöfer
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,51 +30,80 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#include "qmqtt_socket.h"
-#include <QTcpSocket>
+#include "qmqtt_ssl_socket.h"
+#include "qmqtt_string.h"
+#include <QSslSocket>
 
-QMQTT::Socket::Socket(QObject* parent)
+#ifndef QT_NO_SSL
+
+QMQTT::SslSocket::SslSocket(bool ignoreSelfSigned, QObject* parent)
     : SocketInterface(parent)
-    , _socket(new QTcpSocket)
+    , _socket(new QSslSocket)
+    , _ignoreSelfSigned(ignoreSelfSigned)
 {
-    connect(_socket.data(), SIGNAL(connected()), this, SIGNAL(connected()));
+    connect(_socket.data(), SIGNAL(encrypted()),    this, SIGNAL(connected()));
     connect(_socket.data(), SIGNAL(disconnected()), this, SIGNAL(disconnected()));
     connect(_socket.data(),
             SIGNAL(error(QAbstractSocket::SocketError)),
             this,
             SIGNAL(error(QAbstractSocket::SocketError)));
+    connect(_socket.data(),
+            SIGNAL(sslErrors(const QList<QSslError>&)),
+            this,
+            SLOT(sslErrors(const QList<QSslError>&)));
 }
 
-QMQTT::Socket::~Socket()
+QMQTT::SslSocket::~SslSocket()
 {
 }
 
-QIODevice *QMQTT::Socket::ioDevice()
+QIODevice *QMQTT::SslSocket::ioDevice()
 {
     return _socket.data();
 }
 
-void QMQTT::Socket::connectToHost(const QHostAddress& address, quint16 port)
+void QMQTT::SslSocket::connectToHost(const QHostAddress& address, quint16 port)
 {
-    _socket->connectToHost(address, port);
+    Q_UNUSED(address);
+    Q_UNUSED(port);
+
+    qCritical("qmqtt: SSL does not work with host addresses!");
+    emit SocketInterface::error(QAbstractSocket::ConnectionRefusedError);
 }
 
-void QMQTT::Socket::connectToHost(const QString& hostName, quint16 port)
+void QMQTT::SslSocket::connectToHost(const QString& hostName, quint16 port)
 {
-    _socket->connectToHost(hostName, port);
+    _socket->connectToHostEncrypted(hostName, port);
+    if (!_socket->waitForEncrypted())
+    {
+        qCritical() << QStringLiteral("qmqtt SSL: ") << _socket->errorString();
+    }
 }
 
-void QMQTT::Socket::disconnectFromHost()
+void QMQTT::SslSocket::disconnectFromHost()
 {
     _socket->disconnectFromHost();
 }
 
-QAbstractSocket::SocketState QMQTT::Socket::state() const
+QAbstractSocket::SocketState QMQTT::SslSocket::state() const
 {
     return _socket->state();
 }
 
-QAbstractSocket::SocketError QMQTT::Socket::error() const
+QAbstractSocket::SocketError QMQTT::SslSocket::error() const
 {
     return _socket->error();
 }
+
+void QMQTT::SslSocket::sslErrors(const QList<QSslError> &errors)
+{
+    Q_UNUSED(errors);
+
+    if (_ignoreSelfSigned)
+    {
+        // allow self-signed certificates
+        _socket->ignoreSslErrors();
+    }
+}
+
+#endif // QT_NO_SSL

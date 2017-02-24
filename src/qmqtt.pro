@@ -14,7 +14,9 @@ SOURCES += qmqtt_client.cpp \
     qmqtt_message.cpp \
     qmqtt_message_p.cpp \
     qmqtt_socket.cpp \
-    qmqtt_timer.cpp
+    qmqtt_timer.cpp \
+    qmqtt_ssl_socket.cpp \
+    qmqtt_ssl_network.cpp
 
 greaterThan(QT_MAJOR_VERSION, 4): SOURCES += \
     qmqtt_routesubscription.cpp \
@@ -33,7 +35,9 @@ HEADERS += qmqtt_client.h\
     qmqtt_socketinterface.h \
     qmqtt_socket.h \
     qmqtt_timer.h \
-    qmqtt_timerinterface.h
+    qmqtt_timerinterface.h \
+    qmqtt_ssl_socket.h \
+    qmqtt_ssl_network.h
 
 greaterThan(QT_MAJOR_VERSION, 4): HEADERS += \
     qmqtt_routesubscription.h \

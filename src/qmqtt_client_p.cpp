@@ -33,7 +33,7 @@
 #include "qmqtt_client_p.h"
 #include "qmqtt_message.h"
 #include "qmqtt_logging.h"
-#include <QDateTime>
+#include "qmqtt_string.h"
 #include <QUuid>
 
 Q_LOGGING_CATEGORY(client, "qmqtt.client")
@@ -84,6 +84,39 @@ void QMQTT::ClientPrivate::init(const QHostAddress& host, const quint16 port, Ne
     QObject::connect(_network.data(), SIGNAL(error(QAbstractSocket::SocketError)), q, SLOT(onNetworkError(QAbstractSocket::SocketError)));
 }
 
+void QMQTT::ClientPrivate::init(const QString& hostName, const quint16 port, const bool ssl, const bool ignoreSelfSigned)
+{
+    Q_Q(Client);
+
+    _hostName = hostName;
+    _port = port;
+    if (ssl)
+    {
+#ifndef QT_NO_SSL
+        _network.reset(new SslNetwork(ignoreSelfSigned));
+#else
+        Q_UNUSED(ignoreSelfSigned)
+        qCritical() << "SSL not supported in this QT build";
+#endif // QT_NO_SSL
+    }
+    else
+    {
+        _network.reset(new Network);
+    }
+
+    initializeErrorHash();
+
+    QObject::connect(&_timer, SIGNAL(timeout()), q, SLOT(onTimerPingReq()));
+    QObject::connect(_network.data(), SIGNAL(connected()),
+                     q, SLOT(onNetworkConnected()));
+    QObject::connect(_network.data(), SIGNAL(disconnected()),
+                     q, SLOT(onNetworkDisconnected()));
+    QObject::connect(_network.data(), SIGNAL(received(const QMQTT::Frame&)),
+                     q, SLOT(onNetworkReceived(const QMQTT::Frame&)));
+    QObject::connect(_network.data(), SIGNAL(error(QAbstractSocket::SocketError)),
+                     q, SLOT(onNetworkError(QAbstractSocket::SocketError)));
+}
+
 void QMQTT::ClientPrivate::initializeErrorHash()
 {
     _socketErrorHash.insert(QAbstractSocket::ConnectionRefusedError, SocketConnectionRefusedError);
@@ -115,7 +148,14 @@ void QMQTT::ClientPrivate::initializeErrorHash()
 
 void QMQTT::ClientPrivate::connectToHost()
 {
-    _network->connectToHost(_host, _port);
+    if (_hostName.isEmpty())
+    {
+        _network->connectToHost(_host, _port);
+    }
+    else
+    {
+        _network->connectToHost(_hostName, _port);
+    }
 }
 
 void QMQTT::ClientPrivate::onNetworkConnected()
@@ -128,7 +168,6 @@ void QMQTT::ClientPrivate::onNetworkConnected()
 
 void QMQTT::ClientPrivate::sendConnect()
 {
-    QString magic(PROTOCOL_MAGIC);
     quint8 header = CONNECT;
     quint8 flags = 0;
 
@@ -153,13 +192,10 @@ void QMQTT::ClientPrivate::sendConnect()
     }
 
     //payload
-    frame.writeString(magic);
+    frame.writeString(QStringLiteral(PROTOCOL_MAGIC));
     frame.writeChar(PROTOCOL_VERSION_MAJOR);
     frame.writeChar(flags);
     frame.writeInt(_keepAlive);
-    if(_clientId.isEmpty()) {
-        _clientId = randomClientId();
-    }
     frame.writeString(_clientId);
     if(!willTopic().isEmpty())
     {
@@ -173,7 +209,8 @@ void QMQTT::ClientPrivate::sendConnect()
     {
         frame.writeString(_username);
     }
-    if (!_password.isEmpty()){
+    if (!_password.isEmpty())
+    {
         frame.writeString(_password);
     }
     _network->sendFrame(frame);
@@ -191,7 +228,7 @@ quint16 QMQTT::ClientPrivate::sendPublish(const Message& msg)
     frame.writeString(message.topic());
     if(message.qos() > QOS0) {
         if(message.id() == 0) {
-            message.setId(_gmid++);
+            message.setId(nextmid());
         }
         frame.writeInt(message.id());
     }
@@ -222,7 +259,7 @@ quint16 QMQTT::ClientPrivate::sendSubscribe(const QString & topic, const quint8 
 
 quint16 QMQTT::ClientPrivate::sendUnsubscribe(const QString &topic)
 {
-    quint16 mid = _gmid++;
+    quint16 mid = nextmid();
     Frame frame(SETQOS(UNSUBSCRIBE, QOS1));
     frame.writeInt(mid);
     frame.writeString(topic);
@@ -257,11 +294,6 @@ void QMQTT::ClientPrivate::startKeepAlive()
 void QMQTT::ClientPrivate::stopKeepAlive()
 {
     _timer.stop();
-}
-
-QString QMQTT::ClientPrivate::randomClientId()
-{
-    return "QMQTT-" + QString::number(QDateTime::currentMSecsSinceEpoch() % 1000000);
 }
 
 quint16 QMQTT::ClientPrivate::nextmid()
@@ -500,6 +532,16 @@ void QMQTT::ClientPrivate::setHost(const QHostAddress& host)
 QHostAddress QMQTT::ClientPrivate::host() const
 {
     return _host;
+}
+
+void QMQTT::ClientPrivate::setHostName(const QString& hostName)
+{
+    _hostName = hostName;
+}
+
+QString QMQTT::ClientPrivate::hostName() const
+{
+    return _hostName;
 }
 
 QString QMQTT::ClientPrivate::willTopic() const

@@ -66,6 +66,7 @@ public:
 
 public slots:
     void connectToHost(const QHostAddress& host, const quint16 port);
+    void connectToHost(const QString& hostName, const quint16 port);
     void disconnectFromHost();
 
 protected slots:
@@ -77,6 +78,7 @@ protected:
 
     quint16 _port;
     QHostAddress _host;
+    QString _hostName;
     QByteArray _buffer;
     bool _autoReconnect;
     int _autoReconnectInterval;

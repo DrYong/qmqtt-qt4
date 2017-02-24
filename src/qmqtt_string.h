@@ -1,5 +1,5 @@
 /*
- * qmqtt_socket.h - qmqtt socket header
+ * qmqtt_string.h - qmqtt string header
  *
  * Copyright (c) 2013  Ery Lee <ery.lee at gmail dot com>
  * All rights reserved.
@@ -29,36 +29,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#ifndef QMQTT_SOCKET_H
-#define QMQTT_SOCKET_H
+#ifndef QMQTT_STRING_H
+#define QMQTT_STRING_H
 
-#include "qmqtt_socketinterface.h"
-#include <QObject>
-#include <QScopedPointer>
+#if QT_VERSION < 0x050000
+#define QStringLiteral(str) QString::fromUtf8("" str "", sizeof(str) - 1)
+#endif
 
-class QTcpSocket;
-
-namespace QMQTT
-{
-
-class Socket : public SocketInterface
-{
-    Q_OBJECT
-public:
-    explicit Socket(QObject* parent = NULL);
-    virtual	~Socket();
-
-    virtual QIODevice *ioDevice();
-    void connectToHost(const QHostAddress& address, quint16 port);
-    void connectToHost(const QString& hostName, quint16 port);
-    void disconnectFromHost();
-    QAbstractSocket::SocketState state() const;
-    QAbstractSocket::SocketError error() const;
-
-protected:
-    QScopedPointer<QTcpSocket> _socket;
-};
-
-}
-
-#endif // QMQTT_SOCKET_H
+#endif // QMQTT_STRING_H
