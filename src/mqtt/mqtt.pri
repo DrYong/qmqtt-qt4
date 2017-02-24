@@ -4,12 +4,14 @@ PUBLIC_HEADERS += \
     $$PWD/qmqtt_client.h \
     $$PWD/qmqtt_frame.h \
     $$PWD/qmqtt_message.h \
-    $$PWD/qmqtt_routesubscription.h \
-    $$PWD/qmqtt_routedmessage.h \
-    $$PWD/qmqtt_router.h \
     $$PWD/qmqtt_networkinterface.h \
     $$PWD/qmqtt_socketinterface.h \
     $$PWD/qmqtt_timerinterface.h
+
+greaterThan(QT_MAJOR_VERSION, 4): PUBLIC_HEADERS += \
+    $$PWD/qmqtt_routesubscription.h \
+    $$PWD/qmqtt_routedmessage.h \
+    $$PWD/qmqtt_router.h
 
 PRIVATE_HEADERS += \
     $$PWD/qmqtt_client_p.h \

@@ -1,5 +1,12 @@
 TARGET = qmqtt_tests
-QT = core network mqtt mqtt-private testlib
+QT = core network testlib
+
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT += mqtt mqtt-private
+} else {
+    INCLUDEPATH += ../../../src/mqtt
+    LIBS += -L../../../src/mqtt -L../../../src/mqtt/debug -L../../../src/mqtt/release -lqmqtt
+}
 
 DEFINES += QMQTT_LIBRARY_TESTS
 
@@ -28,11 +35,21 @@ LIBS += -L../gtest -L../gtest/debug -L../gtest/release -lgtest
 
 unix:!NO_UNIT_TESTS:!NO_RUN_UNIT_TESTS: {
     unit_tests.target = all
-    macx: unit_tests.commands = \
-        install_name_tool -change libgtest.1.dylib $${OUT_PWD}/../gtest/libgtest.1.dylib $${OUT_PWD}/qmqtt_tests.app/Contents/MacOS/qmqtt_tests; \
-        $${OUT_PWD}/qmqtt_tests.app/Contents/MacOS/qmqtt_tests
-    else: unit_tests.commands = \
-        LD_LIBRARY_PATH=$${OUT_PWD}/../gtest \
-        $${OUT_PWD}/qmqtt_tests
+    greaterThan(QT_MAJOR_VERSION, 4) {
+        unit_tests.commands = \
+            install_name_tool -change libgtest.1.dylib $${OUT_PWD}/../gtest/libgtest.1.dylib $${OUT_PWD}/qmqtt_tests.app/Contents/MacOS/qmqtt_tests; \
+            $${OUT_PWD}/qmqtt_tests.app/Contents/MacOS/qmqtt_tests
+        else: unit_tests.commands = \
+            LD_LIBRARY_PATH=$${OUT_PWD}/../gtest \
+            $${OUT_PWD}/qmqtt_tests
+    } else {
+        macx: unit_tests.commands = \
+            install_name_tool -change libgtest.1.dylib $${OUT_PWD}/../gtest/libgtest.1.dylib $${OUT_PWD}/qmqtt_tests.app/Contents/MacOS/qmqtt_tests; \
+            install_name_tool -change libqmqtt.1.dylib $${OUT_PWD}/../../../src/mqtt/libqmqtt.1.dylib $${OUT_PWD}/qmqtt_tests.app/Contents/MacOS/qmqtt_tests; \
+            $${OUT_PWD}/qmqtt_tests.app/Contents/MacOS/qmqtt_tests
+        else: unit_tests.commands = \
+            LD_LIBRARY_PATH=$${OUT_PWD}/../gtest:$${OUT_PWD}/../../../src/mqtt \
+            $${OUT_PWD}/qmqtt_tests
+    }
     QMAKE_EXTRA_TARGETS += unit_tests
 }
