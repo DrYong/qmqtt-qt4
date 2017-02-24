@@ -10,7 +10,7 @@ Usage
 
 	#include "qmqtt.h"
 
-    QMQTT::Client *client = new QMQTT::Client(QHostAddress::LocalHost, 1883);
+	QMQTT::Client *client = new QMQTT::Client(QHostAddress::LocalHost, 1883);
 
 	client->setClientId("clientId");
 
